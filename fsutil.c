@@ -23,7 +23,7 @@ int newfs;
 int check;
 int fix;
 int flat;
-unsigned long bytes;
+unsigned int bytes;
 char *boot_sector;
 char *boot_sector2;
 
@@ -201,7 +201,7 @@ void print_inode_blocks (u6fs_inode_t *inode, FILE *out)
 void extract_inode (u6fs_inode_t *inode, char *path)
 {
 	int fd, n;
-	unsigned long offset;
+	unsigned int offset;
 	unsigned char data [512];
 
 	fd = open (path, O_CREAT | O_WRONLY, inode->mode & 0x777);

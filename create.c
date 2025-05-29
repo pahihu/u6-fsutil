@@ -128,6 +128,7 @@ static int create_root_directory (u6fs_t *fs)
 	u6fs_inode_t inode;
 	unsigned char buf [512];
 	unsigned int bno;
+        time_t tt;
 
 	memset (&inode, 0, sizeof(inode));
 	inode.mode = INODE_MODE_ALLOC | INODE_MODE_FDIR | 0777;
@@ -152,15 +153,18 @@ static int create_root_directory (u6fs_t *fs)
 		return 0;
 	inode.addr[0] = bno;
 
-	time (&inode.atime);
-	time (&inode.mtime);
+        time (&tt);
+        inode.atime = tt;
+        inode.mtime = tt;
+	// time (&inode.atime);
+	// time (&inode.mtime);
 
 	if (! u6fs_inode_save (&inode, 1))
 		return 0;
 	return 1;
 }
 
-int u6fs_create (u6fs_t *fs, const char *filename, unsigned long bytes)
+int u6fs_create (u6fs_t *fs, const char *filename, unsigned int bytes)
 {
 	int n;
 	unsigned char buf [512];

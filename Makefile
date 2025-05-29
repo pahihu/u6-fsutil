@@ -1,11 +1,11 @@
 CC		= gcc -g
-CFLAGS		= -O -Wall
+CFLAGS		= -O -Wall -I/opt/homebrew/include
 DESTDIR		= /usr/local
 OBJS		= fsutil.o superblock.o block.c inode.o create.o check.o file.o
 PROG		= u6-fsutil
 
 # For Mac OS X
-#LIBS		= -largp
+LIBS		= -L/opt/homebrew/lib -largp
 
 all:		$(PROG)
 

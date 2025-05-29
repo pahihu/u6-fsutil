@@ -74,7 +74,7 @@ static char		*find_inode_name;	/* searching for this name */
 static unsigned short	find_inode_result;	/* result of inode search */
 static unsigned short	lost_inode;		/* lost file to reconnect */
 
-static unsigned long	scan_filesize;		/* file size, decremented during scan */
+static unsigned int	scan_filesize;		/* file size, decremented during scan */
 static unsigned short	total_files;		/* number of files seen */
 
 static void set_inode_state (unsigned short inum, int s)
@@ -357,12 +357,14 @@ static int scan_directory (u6fs_inode_t *inode, unsigned short blk, void *arg)
 static void print_inode (u6fs_inode_t *inode)
 {
 	char *p;
+        time_t mt;
 
 	printf (" I=%u ", inode->number);
 	printf (" OWNER=%d ", inode->uid);
 	printf ("MODE=%o\n", inode->mode);
 	printf ("SIZE=%ld ", inode->size);
-	p = ctime (&inode->mtime);
+        mt = inode->mtime;
+	p = ctime (&mt /*inode->mtime*/);
 	printf ("MTIME=%12.12s %4.4s\n", p+4, p+20);
 }
 
@@ -446,7 +448,7 @@ static void scan_pass2 (u6fs_t *fs, unsigned short inum)
 {
 	u6fs_inode_t inode;
 	char *savname;
-	unsigned long savsize;
+	unsigned int savsize;
 
 	set_inode_state (inum, FSTATE);
 	if (! u6fs_inode_get (fs, &inode, inum))
@@ -989,7 +991,10 @@ fatal:		if (block_map)
 	printf ("%d files %d blocks %d free\n",
 		total_files, used_blocks, free_blocks);
 	if (fs->modified) {
-		time (&fs->time);
+                time_t tt;
+		time (&tt);
+                fs->time = tt;
+		// time (&fs->time);
 		fs->dirty = 1;
 	}
 	buf_flush (fs);

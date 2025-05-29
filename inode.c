@@ -18,7 +18,7 @@ extern int verbose;
 
 int u6fs_inode_get (u6fs_t *fs, u6fs_inode_t *inode, unsigned short inum)
 {
-	unsigned long offset;
+	unsigned int offset;
 	unsigned char size2;
 	unsigned short size10;
 	int i;
@@ -51,7 +51,7 @@ int u6fs_inode_get (u6fs_t *fs, u6fs_inode_t *inode, unsigned short inum)
 		return 0;
 	if (! u6fs_read16 (fs, &size10))
 		return 0;
-	inode->size = (unsigned long) size2 << 16 | size10;
+	inode->size = (unsigned int) size2 << 16 | size10;
 
 	for (i=0; i<8; ++i) {		/* device addresses constituting file */
 		if (! u6fs_read16 (fs, &inode->addr[i]))
@@ -114,8 +114,9 @@ void u6fs_inode_clear (u6fs_inode_t *inode)
 
 int u6fs_inode_save (u6fs_inode_t *inode, int force)
 {
-	unsigned long offset;
+	unsigned int offset;
 	int i;
+        time_t tt;
 
 	if (! inode->fs->writable)
 		return 0;
@@ -125,8 +126,11 @@ int u6fs_inode_save (u6fs_inode_t *inode, int force)
 		return 0;
 	offset = (inode->number + 31) * 32;
 
-	time (&inode->atime);
-	time (&inode->mtime);
+        time (&tt);
+        inode->atime = tt;
+        inode->mtime = tt;
+	// time (&inode->atime);
+	// time (&inode->mtime);
 
 	if (! u6fs_seek (inode->fs, offset))
 		return 0;
@@ -162,6 +166,7 @@ int u6fs_inode_save (u6fs_inode_t *inode, int force)
 void u6fs_inode_print (u6fs_inode_t *inode, FILE *out)
 {
 	int i;
+        time_t at, mt;
 
 	fprintf (out, "     I-node: %u\n", inode->number);
 	fprintf (out, "       Type: %s\n",
@@ -193,15 +198,16 @@ void u6fs_inode_print (u6fs_inode_t *inode, FILE *out)
 	}
 	fprintf (out, "\n");
 
-	fprintf (out, "Last access: %s", ctime (&inode->atime));
-	fprintf (out, "   Modified: %s", ctime (&inode->mtime));
+        at = inode->atime; mt = inode->mtime;
+	fprintf (out, "Last access: %s", ctime (&at /*inode->atime*/));
+	fprintf (out, "   Modified: %s", ctime (&mt /*inode->mtime*/));
 }
 
 void u6fs_directory_scan (u6fs_inode_t *dir, char *dirname,
 	u6fs_directory_scanner_t scanner, void *arg)
 {
 	u6fs_inode_t file;
-	unsigned long offset;
+	unsigned int offset;
 	unsigned char data [17];
 	unsigned int inum;
 
@@ -375,11 +381,11 @@ large:
 	return nb;
 }
 
-int u6fs_inode_read (u6fs_inode_t *inode, unsigned long offset,
-	unsigned char *data, unsigned long bytes)
+int u6fs_inode_read (u6fs_inode_t *inode, unsigned int offset,
+	unsigned char *data, unsigned int bytes)
 {
 	unsigned char block [512];
-	unsigned long n;
+	unsigned int n;
 	unsigned int bn, inblock_offset;
 
 	if (bytes + offset > inode->size)
@@ -403,11 +409,11 @@ int u6fs_inode_read (u6fs_inode_t *inode, unsigned long offset,
 	return 1;
 }
 
-int u6fs_inode_write (u6fs_inode_t *inode, unsigned long offset,
-	unsigned char *data, unsigned long bytes)
+int u6fs_inode_write (u6fs_inode_t *inode, unsigned int offset,
+	unsigned char *data, unsigned int bytes)
 {
 	unsigned char block [512];
-	unsigned long n;
+	unsigned int n;
 	unsigned int bn, inblock_offset;
 
 	while (bytes != 0) {
@@ -488,7 +494,7 @@ int u6fs_inode_by_name (u6fs_t *fs, u6fs_inode_t *inode, char *name,
 	int c;
 	char *cp;
 	char dbuf [14];
-	unsigned long offset;
+	unsigned int offset;
 	unsigned char data [16];
 	unsigned int inum;
 	u6fs_inode_t dir;

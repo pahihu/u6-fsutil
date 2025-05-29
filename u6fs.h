@@ -11,7 +11,9 @@
 #define LSXFS_ROOT_INODE	1	/* root directory in inode 1 */
 #define LSXFS_INODES_PER_BLOCK	16	/* inodes per block */
 
-typedef struct {
+#define PACKED  __attribute__((packed))
+
+typedef struct PACKED {
 	const char	*filename;
 	int		fd;
 	unsigned long	seek;
@@ -29,10 +31,10 @@ typedef struct {
 	unsigned char	ilock;		/* lock during I list manipulation */
 	unsigned char	fmod;		/* super block modified flag */
 	unsigned char	ronly;		/* mounted read-only flag */
-	unsigned long	time;		/* current date of last update */
-} u6fs_t;
+	unsigned int	time;		/* current date of last update */
+} u6fs_t ;
 
-typedef struct {
+typedef struct PACKED {
 	u6fs_t		*fs;
 	unsigned short	number;
 	int		dirty;		/* save needed */
@@ -54,33 +56,33 @@ typedef struct {
 	unsigned char	nlink;		/* directory entries */
 	unsigned char	uid;		/* owner */
 	unsigned char	gid;		/* group of owner */
-	unsigned long	size;		/* size */
+	unsigned int	size;		/* size */
 	unsigned short	addr [8];	/* device addresses constituting file */
-	unsigned long	atime;		/* last access time */
-	unsigned long	mtime;		/* last modification time */
-} u6fs_inode_t;
+	unsigned int	atime;		/* last access time */
+	unsigned int	mtime;		/* last modification time */
+} u6fs_inode_t ;
 
-typedef struct {
+typedef struct PACKED {
 	unsigned short	ino;
 	char		name [14+1];
-} u6fs_dirent_t;
+} u6fs_dirent_t ;
 
 typedef void (*u6fs_directory_scanner_t) (u6fs_inode_t *dir,
 	u6fs_inode_t *file, char *dirname, char *filename, void *arg);
 
-typedef struct {
+typedef struct PACKED {
 	u6fs_inode_t	inode;
 	int		writable;	/* write allowed */
-	unsigned long	offset;		/* current i/o offset */
-} u6fs_file_t;
+	unsigned int	offset;		/* current i/o offset */
+} u6fs_file_t ;
 
 int u6fs_seek (u6fs_t *fs, unsigned long offset);
 int u6fs_read8 (u6fs_t *fs, unsigned char *val);
 int u6fs_read16 (u6fs_t *fs, unsigned short *val);
-int u6fs_read32 (u6fs_t *fs, unsigned long *val);
+int u6fs_read32 (u6fs_t *fs, unsigned int *val);
 int u6fs_write8 (u6fs_t *fs, unsigned char val);
 int u6fs_write16 (u6fs_t *fs, unsigned short val);
-int u6fs_write32 (u6fs_t *fs, unsigned long val);
+int u6fs_write32 (u6fs_t *fs, unsigned int val);
 
 int u6fs_read (u6fs_t *fs, unsigned char *data, int bytes);
 int u6fs_write (u6fs_t *fs, unsigned char *data, int bytes);
@@ -88,7 +90,7 @@ int u6fs_write (u6fs_t *fs, unsigned char *data, int bytes);
 int u6fs_open (u6fs_t *fs, const char *filename, int writable);
 void u6fs_close (u6fs_t *fs);
 int u6fs_sync (u6fs_t *fs, int force);
-int u6fs_create (u6fs_t *fs, const char *filename, unsigned long bytes);
+int u6fs_create (u6fs_t *fs, const char *filename, unsigned int bytes);
 int u6fs_install_boot (u6fs_t *fs, const char *filename,
 	const char *filename2);
 int u6fs_install_single_boot (u6fs_t *fs, const char *filename);
@@ -100,10 +102,10 @@ int u6fs_inode_save (u6fs_inode_t *inode, int force);
 void u6fs_inode_clear (u6fs_inode_t *inode);
 void u6fs_inode_truncate (u6fs_inode_t *inode);
 void u6fs_inode_print (u6fs_inode_t *inode, FILE *out);
-int u6fs_inode_read (u6fs_inode_t *inode, unsigned long offset,
-	unsigned char *data, unsigned long bytes);
-int u6fs_inode_write (u6fs_inode_t *inode, unsigned long offset,
-	unsigned char *data, unsigned long bytes);
+int u6fs_inode_read (u6fs_inode_t *inode, unsigned int offset,
+	unsigned char *data, unsigned int bytes);
+int u6fs_inode_write (u6fs_inode_t *inode, unsigned int offset,
+	unsigned char *data, unsigned int bytes);
 int u6fs_inode_alloc (u6fs_t *fs, u6fs_inode_t *inode);
 int u6fs_inode_by_name (u6fs_t *fs, u6fs_inode_t *inode, char *name,
 	int op, int mode);
@@ -123,9 +125,9 @@ void u6fs_dirent_unpack (u6fs_dirent_t *dirent, unsigned char *data);
 int u6fs_file_create (u6fs_t *fs, u6fs_file_t *file, char *name, int mode);
 int u6fs_file_open (u6fs_t *fs, u6fs_file_t *file, char *name, int wflag);
 int u6fs_file_read (u6fs_file_t *file, unsigned char *data,
-	unsigned long bytes);
+	unsigned int bytes);
 int u6fs_file_write (u6fs_file_t *file, unsigned char *data,
-	unsigned long bytes);
+	unsigned int bytes);
 int u6fs_file_close (u6fs_file_t *file);
 
 /* Big endians: Motorola 68000, PowerPC, HP PA, IBM S390. */

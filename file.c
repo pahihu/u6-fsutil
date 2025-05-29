@@ -45,7 +45,7 @@ int u6fs_file_open (u6fs_t *fs, u6fs_file_t *file, char *name, int wflag)
 	return 1;
 }
 
-int u6fs_file_read (u6fs_file_t *file, unsigned char *data, unsigned long bytes)
+int u6fs_file_read (u6fs_file_t *file, unsigned char *data, unsigned int bytes)
 {
 	if (! u6fs_inode_read (&file->inode, file->offset, data, bytes)) {
 		fprintf (stderr, "inode %d: file write failed\n",
@@ -56,7 +56,7 @@ int u6fs_file_read (u6fs_file_t *file, unsigned char *data, unsigned long bytes)
 	return 1;
 }
 
-int u6fs_file_write (u6fs_file_t *file, unsigned char *data, unsigned long bytes)
+int u6fs_file_write (u6fs_file_t *file, unsigned char *data, unsigned int bytes)
 {
 	if (! file->writable)
 		return 0;

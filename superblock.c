@@ -17,9 +17,9 @@
 extern int verbose;
 extern int flat;
 
-static unsigned long deskew (unsigned long address)
+static unsigned int deskew (unsigned int address)
 {
-	unsigned long track, sector;
+	unsigned int track, sector;
 	unsigned int offset = address % 128;
 
 	sector = (address / 128) * 3 % 26;
@@ -31,7 +31,7 @@ static unsigned long deskew (unsigned long address)
 
 int u6fs_seek (u6fs_t *fs, unsigned long offset)
 {
-	unsigned long hw_address;
+	unsigned int hw_address;
 
 	hw_address = flat ? offset : deskew (offset);
 /*	printf ("seek %ld, block %ld - hw %d\n", offset, offset / 512, hw_address);*/
@@ -81,7 +81,7 @@ int u6fs_read16 (u6fs_t *fs, unsigned short *val)
 	return 1;
 }
 
-int u6fs_read32 (u6fs_t *fs, unsigned long *val)
+int u6fs_read32 (u6fs_t *fs, unsigned int *val)
 {
 	unsigned char data [4];
 
@@ -91,7 +91,7 @@ int u6fs_read32 (u6fs_t *fs, unsigned long *val)
 		return 0;
 	}
 	update_seek (fs, 4);
-	*val = (unsigned long) data[1] << 24 | (unsigned long) data[0] << 16 |
+	*val = (unsigned int) data[1] << 24 | (unsigned int) data[0] << 16 |
 		data[3] << 8 | data[2];
 	return 1;
 }
@@ -116,7 +116,7 @@ int u6fs_write16 (u6fs_t *fs, unsigned short val)
 	return 1;
 }
 
-int u6fs_write32 (u6fs_t *fs, unsigned long val)
+int u6fs_write32 (u6fs_t *fs, unsigned int val)
 {
 	unsigned char data [4];
 
@@ -214,13 +214,16 @@ int u6fs_open (u6fs_t *fs, const char *filename, int writable)
 int u6fs_sync (u6fs_t *fs, int force)
 {
 	int i;
+        time_t tt;
 
 	if (! fs->writable)
 		return 0;
 	if (! force && ! fs->dirty)
 		return 1;
 
-	time (&fs->time);
+        time (&tt);
+        fs->time = tt;
+	// time (&fs->time);
 	if (! u6fs_seek (fs, 512))
 		return 0;
 
@@ -257,6 +260,7 @@ int u6fs_sync (u6fs_t *fs, int force)
 void u6fs_print (u6fs_t *fs, FILE *out)
 {
 	int i;
+        time_t tt;
 
 	fprintf (out, "                File: %s\n", fs->filename);
 	fprintf (out, "         Volume size: %u blocks\n", fs->fsize);
@@ -284,7 +288,8 @@ void u6fs_print (u6fs_t *fs, FILE *out)
 		fprintf (out, "Super block modified: %u\n", fs->fmod);
 		fprintf (out, "   Mounted read-only: %u\n", fs->ronly);
 	}
-	fprintf (out, "    Last update time: %s", ctime (&fs->time));
+        tt = fs->time;
+	fprintf (out, "    Last update time: %s", ctime (&tt /*fs->time*/));
 }
 
 void u6fs_close (u6fs_t *fs)
