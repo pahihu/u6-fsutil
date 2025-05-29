@@ -1,0 +1,8 @@
+This is the fsutil package from https://sf.net/projects/bkunix
+You need to install argp with:
+
+        brew install standalone-argp
+
+Good luck!
+
+pahihu
